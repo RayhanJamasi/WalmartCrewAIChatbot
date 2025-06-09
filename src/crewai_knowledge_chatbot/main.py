@@ -110,14 +110,14 @@ def run():
             if memory_type == 1:
 
                 #searches semantically for top 2 best results from both the user and chatbot
-                past_memories_TD = client.search(user_input, user_id="Wal_Assistant")[:2]
+                past_memories_wal = client.search(user_input, user_id="Wal_Assistant")[:2]
                 past_memories_user = client.search(user_input, user_id="Wal_User")[:2]
 
                 #declaring past_memories_str which will hold the snippets of long-term memory
                 past_memories_str = ""
 
                 #going through the memory field for all 4 memories
-                for i, memory in enumerate(past_memories_TD + past_memories_user):
+                for i, memory in enumerate(past_memories_wal + past_memories_user):
 
                     #adding them to the variable
                     past_memories_str += f"Memory {i+1}: {memory['memory']}\n\n"
@@ -196,15 +196,15 @@ def voice_to_text():
 #agent also will give a rephrased prompt of what was said and help add context for the agents
 def is_question_understandable(user_input, last_3_exchanges):
     system_msg = """
-    You work at TD Bank as a compliance-focused prompt reviewer. Your job is to filter out
-    irrelevant or risky topics before they reach internal systems. Determine if the user input
-    is relevant to TD, TD services, banking or finance. Your other job is to look at the user prompt
-    and rephrase it based off the memories you've been given (if any). Use the current chat history to help
-    determine if the user is continuing a relevant conversation to the conditions mentioned before.
-    For example, they may ask question which may not be finance related directly, but by referencing
-    the memories you've been given, in reality, it actually was finance-related. Use that knowledge to
-    rephrase the prompt and and give it context to what the user is actually asking.
-    
+    You work at Walmart as a compliance-focused prompt reviewer. Your job is to filter out
+    irrelevant or risky topics before they reach internal systems. Determine if the user input is
+    relevant to Walmart or Walmart services and products. Your other job is to look at the user prompt
+    and rephrase it based off the memories you've been given (if any). Use the current chat history
+    to determine if the user is continuing a relevant convsersation to the conditions mentioned before.
+    For example, they may ask questions which may not be related to walmart directly, but by referecing the
+    memories you've been given, in reality, it actually was walmart-related. Use that knowledge to rephrase 
+    the prompt and give it context to what the user is actually asking
+
     If it's not clearly related, or it's  incoherent, fragmented, or vague, respond with (case sensitive):
     no, <reason>
     If it was related, respond exactly with (case sensitive):
