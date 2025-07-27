@@ -1,64 +1,67 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
-from crewai.agents.agent_builder.base_agent import BaseAgent
-from typing import List
-# If you want to run a snippet of code before or after the crew starts,
-# you can use the @before_kickoff and @after_kickoff decorators
-# https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
+from crewai_tools import SerperDevTool
 
+#specifications for the memory
+memory_config = {
+    "provider": "mem0",
+    "config": {"user_id": "User"}
+}
+
+#creating a crew base class
 @CrewBase
 class CrewaiKnowledgeChatbot():
     """CrewaiKnowledgeChatbot crew"""
 
-    agents: List[BaseAgent]
-    tasks: List[Task]
+    #accessing the agent and yask YAML files
+    agents_config = 'config/agents.yaml'
+    tasks_config = 'config/tasks.yaml'
 
-    # Learn more about YAML configuration files here:
-    # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-    # Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
-    
-    # If you would like to add tools to your agents, you can learn more about it here:
-    # https://docs.crewai.com/concepts/agents#agent-tools
+    #creating a researcher agent
     @agent
     def researcher(self) -> Agent:
         return Agent(
-            config=self.agents_config['researcher'], # type: ignore[index]
-            verbose=True
+            config=self.agents_config['researcher'],
+            #giving access to serper search tool, with searching for things in toronto ontario
+            tools=[SerperDevTool(n_results=2,country="ca", locale="en-CA", location="Toronto, Ontario, Canada")], 
+            memory=True, 
+            memory_config=memory_config, 
+            verbose=True,
+            max_iter = 3
         )
 
     @agent
     def reporting_analyst(self) -> Agent:
         return Agent(
-            config=self.agents_config['reporting_analyst'], # type: ignore[index]
-            verbose=True
+            config=self.agents_config['reporting_analyst'],
+            memory=False,
+            verbose=True,
+            max_iter = 2
         )
 
-    # To learn more about structured task outputs,
-    # task dependencies, and task callbacks, check out the documentation:
-    # https://docs.crewai.com/concepts/tasks#overview-of-a-task
     @task
     def research_task(self) -> Task:
         return Task(
-            config=self.tasks_config['research_task'], # type: ignore[index]
+            config=self.tasks_config['research_task'],
+            agent=self.researcher()
         )
 
     @task
     def reporting_task(self) -> Task:
         return Task(
-            config=self.tasks_config['reporting_task'], # type: ignore[index]
+            config=self.tasks_config['reporting_task'], 
+            agent = self.reporting_analyst(),
             output_file='report.md'
         )
 
     @crew
     def crew(self) -> Crew:
         """Creates the CrewaiKnowledgeChatbot crew"""
-        # To learn how to add knowledge sources to your crew, check out the documentation:
-        # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
 
         return Crew(
-            agents=self.agents, # Automatically created by the @agent decorator
-            tasks=self.tasks, # Automatically created by the @task decorator
+            agents=self.agents, 
+            tasks=self.tasks, 
             process=Process.sequential,
-            verbose=True,
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
+            verbose=False,
+            # process=Process.hierarchical, 
         )
