@@ -81,3 +81,7 @@ This command initializes the Crew, assembling the agents and assigning them task
 ## License
 
 MIT License - see LICENSE file for details.
+
+## Status
+
+Currently, an issue the download can sometimes be buggy. I have heard about both successful and unsuccessful downloads. Currently looking more in-depth. 
